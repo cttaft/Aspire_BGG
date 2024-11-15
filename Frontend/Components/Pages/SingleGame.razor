@@ -1,0 +1,41 @@
+﻿@page "/Game/{id}"
+@using BoardGamer.BoardGameGeek.BoardGameGeekXmlApi2
+@using Microsoft.FluentUI.AspNetCore.Components
+@using OllamaSharp
+@inject BggApiClient client
+@attribute [StreamRendering]
+
+@if (game == null)
+{
+    <FluentProgressRing></FluentProgressRing>
+}
+else
+{
+    <h3>@game.Name</h3>
+    <FluentCard>
+        <FluentGrid>
+            <FluentGridItem>
+                <img src="@game?.Thumbnail"/>
+                <p>@game.Description</p>
+                <p>Min Age: @game.MinAge</p>
+            </FluentGridItem>
+        </FluentGrid>
+    </FluentCard>
+    <AiResponseChat GameName="@game.Name"></AiResponseChat>
+
+}
+
+@code {
+    public ThingResponse.Item game { get; set; }
+    [Parameter]
+    public string Id { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+        game = await client.GetGame(int.Parse(Id));
+      
+      
+    }
+    
+
+  
+}

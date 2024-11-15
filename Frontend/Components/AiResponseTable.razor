@@ -1,0 +1,33 @@
+﻿@using Microsoft.Extensions.AI
+@using Microsoft.FluentUI.AspNetCore.Components
+@inject  IChatClient chatClient
+
+<div>
+    <h2>Ai Suggestions</h2>
+    @if (aiResponse != null)
+    {
+        @((MarkupString)aiResponse)
+    }
+    else
+    {
+    <FluentProgressRing></FluentProgressRing>
+    }
+</div>
+
+@code {
+    [Parameter] public string GameName { get; set; }
+
+    private string aiResponse { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+
+        var res = await chatClient.CompleteAsync($"I Like the board game {GameName}. What other specific board games like this do you recommend with similar mechanisms? " +
+                                                    $"Output as an HTML5 compliant table with the following Headers: Title, Year Released, Player Count, Play Time" +
+                                                    "Each row should contain one board game" +
+                                                    $"Do not include the game name I provide as one of the suggestions" +
+                                                    $" Please only include valid html in your response\"");
+        aiResponse = res.Message.Text;
+    }
+
+}

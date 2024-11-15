@@ -1,0 +1,33 @@
+﻿@using Microsoft.Extensions.AI
+@using Microsoft.FluentUI.AspNetCore.Components
+@inject  IChatClient chatClient
+
+<div>
+    <h2>Ai Suggestions</h2>
+    @if (aiResponse !=null && aiResponse.Any())
+    {
+        @foreach (var res in aiResponse)
+            @res
+    }
+    else
+    {
+        <FluentProgressRing></FluentProgressRing>
+    }
+</div>
+
+@code {
+    [Parameter] public string GameName { get; set; }
+
+    private List<string> aiResponse { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        aiResponse = new List<string>();
+        await foreach (var stream in chatClient.CompleteStreamingAsync($"I Like the board game {GameName}. What other specific board games like this do you recommend with similar mechanisms?"))
+        {
+            aiResponse.Add(stream?.Text);
+            this.StateHasChanged();
+        }
+    }
+
+}

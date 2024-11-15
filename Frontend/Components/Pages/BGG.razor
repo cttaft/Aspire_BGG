@@ -1,0 +1,43 @@
+﻿@page "/games"
+@using BoardGamer.BoardGameGeek.BoardGameGeekXmlApi2
+@using Microsoft.FluentUI.AspNetCore.Components
+@inject BggApiClient client
+@rendermode InteractiveServer
+
+@attribute [StreamRendering]
+
+<PageTitle>My Games</PageTitle>
+
+<h1>My Games</h1>
+
+
+    
+    <FluentDataGrid Items="@games" Pagination="@pagination" Loading="@GamesNull">
+        <TemplateColumn Title="Image" Align="Align.Center">
+            <a href="/game/@context.ObjectId"><img class="flag" src="@context.Thumbnail" alt="Thumbnail of @context.Name"/></a>
+        </TemplateColumn>
+        <PropertyColumn Property="@(g => g.Name)" Sortable="true"  />
+        <PropertyColumn Property="@(g => g.Status.Owned)" Sortable="true" Title="Owned?"  />
+    </FluentDataGrid>
+    <FluentPaginator State="@pagination">
+        <SummaryTemplate>
+            There are <strong>@(pagination.TotalItemCount ?? 0)</strong> rows
+        </SummaryTemplate>
+        <PaginationTextTemplate>
+            This is page <strong>@(pagination.CurrentPageIndex + 1)</strong> out of a total of <strong>@(pagination.LastPageIndex + 1)</strong> pages
+        </PaginationTextTemplate>
+    </FluentPaginator>
+
+@code {
+    private IQueryable<CollectionResponse.Item>? games;
+    PaginationState pagination  = new() { ItemsPerPage = 5 };
+
+    public bool GamesNull => games == null;
+
+    protected override async Task OnInitializedAsync()
+    {
+        games= (await client.GetGames()).AsQueryable();
+
+    }
+
+}
